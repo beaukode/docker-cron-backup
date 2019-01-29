@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ -z "${BACKUP_CRON}" ]; then
-    echo "ERROR: You need at least specify a value for BACKUP_CRON"
-    exit 1
-fi
-
 if [ -z "${BACKUP_SOURCE}" ]; then
     BACKUP_SOURCE=/backups
 fi
@@ -19,7 +14,11 @@ export FTP_USERNAME=$FTP_USERNAME
 export FTP_PASSWORD=$FTP_PASSWORD
 " > /env.sh
 
-echo "${BACKUP_CRON} /dobackup.sh" > /crontab.conf
-crontab /crontab.conf
+if [ -z "${BACKUP_CRON}" ]; then
+    /dobackup.sh
+else
+    echo "${BACKUP_CRON} /dobackup.sh" > /crontab.conf
+    crontab /crontab.conf
+    exec crond -f
+fi
 
-exec crond -f
