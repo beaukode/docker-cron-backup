@@ -5,7 +5,7 @@ RUN set -ex \
     && apk add --no-cache \
     bash mysql-client gzip openssl ncftp openssh-client sshpass
 
-COPY start.sh dobackup.sh docompress.sh /
+COPY start.sh dobackup.sh docompress.sh dosend.sh /
 
 RUN set -x \
     && chmod +x /*.sh \
