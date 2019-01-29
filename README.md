@@ -5,16 +5,27 @@ This docker image to plan file &amp; mysql backup ftp/sftp
 Run image and mount everythings you want in /backups !
 
 ### Backup every home
-Mount /home as /backups then it will create a user.tar.gz for each users
+Mount /home to /backups then it will create a user.tar.gz for each users
 ```
 docker run -d \
        -v /home:/backups
-       --env BACKUP_CRON=0 0 * * * \
+       beaukode/cron-backup
+```
+
+### Backup every home and send them to remote sFTP
+This exemple use openssh key from ~/.ssh/id_rsa
+```
+docker run -d \
+       -v /home:/backups
+       -v `echo $HOME`/.ssh/id_rsa:/id_rsa
+       --env SFTP_HOST=127.0.0.1
+       --env SFTP_USERNAME=backup
+       --env SFTP_PRIVKEY=/id_rsa
        beaukode/cron-backup
 ```
 
 ### Backup random directories
-Mount them in /backups and it will create 2 archives : etc.tar.gz & webroot.tar.gz
+Mount them in /backups and it will create 2 archives (etc.tar.gz & webroot.tar.gz) every day at midnight
 ```
 docker run -d \
        -v /etc:/backups/etc
@@ -23,8 +34,8 @@ docker run -d \
        beaukode/cron-backup
 ```
 
-## General variables
-* **BACKUP_CRON** : Cron expression to plan backups
+## Variables
+* **BACKUP_CRON** : Cron expression to plan backups, leave empty to run once then exit
 * **BACKUP_SOURCE** (Default: /backups) : Directory to backup. **ONLY** each subdirectory will be saved as tar.gz archives. *Files and dots directories on this root directory is ignored*
 
 ## FTP
@@ -33,3 +44,11 @@ docker run -d \
 * **FTP_PATH** (Default: /) : Path on FTP to put backup in
 * **FTP_USERNAME** : FTP account username
 * **FTP_PASSWORD** : FTP account password
+
+## SFTP
+* **SFTP_HOST** : Send archives to this SFTP host in a directory named SFTP_PATH/DATE_TIME/
+* **SFTP_PORT** (Default: 22) : SFTP server port
+* **SFTP_PATH** (Default: .) : Path on SFTP to put backup in
+* **SFTP_USERNAME** : SFTP account username
+* **SFTP_PASSWORD** : SFTP account password
+* **SFTP_PRIVKEY** : OpenSSH private key (unencrypted with passphrase !)
