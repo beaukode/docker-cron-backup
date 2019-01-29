@@ -1,0 +1,20 @@
+version: '2'
+services:
+  sut:
+    build: .
+    command: "/run_tests.sh"
+    depends_on:
+      - ftp
+    volumes:
+      - "data:/tests-data"
+  ftp:
+    image: stilliard/pure-ftpd:hardened
+    environment:
+      - "FTP_USER_NAME=testuser"
+      - "FTP_USER_PASS=testpasswd"
+      - "FTP_USER_HOME=/tests-data/ftp"
+    volumes:
+      - "data:/tests-data"
+    ports: ["30000-30009"]
+volumes:
+  data:
