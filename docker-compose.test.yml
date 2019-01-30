@@ -6,16 +6,25 @@ services:
     depends_on:
       - ftp
     volumes:
-      - "data:/tests-data"
+      - "data:/home"
+      - "./tests/id_rsa:/id_rsa"
   ftp:
     image: stilliard/pure-ftpd:hardened
     environment:
       - "PUBLICHOST=ftp"
       - "FTP_USER_NAME=testuser"
       - "FTP_USER_PASS=testpasswd"
-      - "FTP_USER_HOME=/tests-data/ftp"
+      - "FTP_USER_HOME=/home/ftp"
       - "ADDED_FLAGS=-S 0.0.0.0,29999"
     volumes:
-      - "data:/tests-data"
+      - "data:/home"
+  sftp:
+    image: amimof/sftp
+    environment:
+      - "SSH_USERNAME=sftpuser"
+      - "SSH_PASSWORD=testpasswd"
+    volumes:
+      - "data:/home"
+      - "./tests/id_rsa.pub:/home/sftpuser/.ssh/keys/id_rsa.pub"
 volumes:
   data:

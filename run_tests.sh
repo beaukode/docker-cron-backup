@@ -33,7 +33,7 @@ dd if=/dev/urandom of=/backups/dir2/file2b bs=1M count=2
 export BACKUP_SOURCE=/backups
 export BACKUP_PREFIX=testbackup
 export BACKUP_TMP="/tmp/$BACKUP_PREFIX"
-rm -Rf /tests-data/ftp/*
+rm -Rf /home/ftp/*
 rm -Rf $BACKUP_TMP
 mkdir $BACKUP_TMP
 
@@ -53,15 +53,47 @@ echo ">Do nothing"
 echo ">Send to FTP"
 export FTP_HOST=ftp
 export FTP_PORT=29999
+export FTP_PATH=data
 export FTP_USERNAME=testuser
 export FTP_PASSWORD=testpasswd
-assertNotFileExists "/tests-data/ftp/testbackup/dir1.tar.gz"
-assertNotFileExists "/tests-data/ftp/testbackup/dir2.tar.gz"
+assertNotFileExists "/home/ftp/data/testbackup/dir1.tar.gz"
+assertNotFileExists "/home/ftp/data/testbackup/dir2.tar.gz"
 /dosend.sh
-assertFileExists "/tests-data/ftp/testbackup/dir1.tar.gz"
-assertFileExists "/tests-data/ftp/testbackup/dir2.tar.gz"
-rm -Rf /tests-data/ftp/*
-assertNotFileExists "/tests-data/ftp/testbackup/dir1.tar.gz"
-assertNotFileExists "/tests-data/ftp/testbackup/dir2.tar.gz"
+assertFileExists "/home/ftp/data/testbackup/dir1.tar.gz"
+assertFileExists "/home/ftp/data/testbackup/dir2.tar.gz"
+rm -Rf /home/ftp/*
+assertNotFileExists "/home/ftp/data/testbackup/dir1.tar.gz"
+assertNotFileExists "/home/ftp/data/testbackup/dir2.tar.gz"
 unset FTP_HOST FTP_PORT FTP_PATH FTP_USERNAME FTP_PASSWORD
 
+# Send to SFTP (password)
+echo ">Send to SFTP (password)"
+export SFTP_HOST=sftp
+export SFTP_USERNAME=sftpuser
+export SFTP_PASSWORD=testpasswd
+export SFTP_PATH=data
+assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
+assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+/dosend.sh
+assertFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
+assertFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+rm -Rf /home/sftpuser/data/*
+assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
+assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD
+
+# Send to SFTP (key)
+echo ">Send to SFTP (key)"
+export SFTP_HOST=sftp
+export SFTP_USERNAME=sftpuser
+export SFTP_PRIVKEY=/id_rsa
+export SFTP_PATH=data
+assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
+assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+/dosend.sh
+assertFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
+assertFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+rm -Rf /home/sftpuser/data/*
+assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
+assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD
