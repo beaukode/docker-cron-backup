@@ -10,11 +10,12 @@ services:
   ftp:
     image: stilliard/pure-ftpd:hardened
     environment:
+      - "PUBLICHOST=ftp"
       - "FTP_USER_NAME=testuser"
       - "FTP_USER_PASS=testpasswd"
       - "FTP_USER_HOME=/tests-data/ftp"
+      - "ADDED_FLAGS=-S 0.0.0.0,29999"
     volumes:
       - "data:/tests-data"
-    ports: ["30000-30009"]
 volumes:
   data:
