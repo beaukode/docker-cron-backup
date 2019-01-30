@@ -13,10 +13,10 @@ assertFileExists ()
 assertNotFileExists ()
 {
     if [ -f "$1" ]; then
-        echo "FAIL: Missing file $1"
+        echo "FAIL: Existing file $1"
         exit 1;
     else
-        echo "PASS: Existing file $1"
+        echo "PASS: Not existing file $1"
     fi
 }
 
@@ -60,4 +60,8 @@ assertNotFileExists "/tests-data/ftp/testbackup/dir2.tar.gz"
 /dosend.sh
 assertFileExists "/tests-data/ftp/testbackup/dir1.tar.gz"
 assertFileExists "/tests-data/ftp/testbackup/dir2.tar.gz"
+rm -Rf /tests-data/ftp/*
+assertNotFileExists "/tests-data/ftp/testbackup/dir1.tar.gz"
+assertNotFileExists "/tests-data/ftp/testbackup/dir2.tar.gz"
 unset FTP_HOST FTP_PORT FTP_PATH FTP_USERNAME FTP_PASSWORD
+
