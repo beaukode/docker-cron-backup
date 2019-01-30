@@ -5,6 +5,7 @@ services:
     command: "/run_tests.sh"
     depends_on:
       - ftp
+      - sftp
     volumes:
       - "data:/home"
       - "./tests/id_rsa:/id_rsa"
