@@ -28,6 +28,7 @@ dd if=/dev/urandom of=/backups/dir1/file1a bs=1M count=1
 dd if=/dev/urandom of=/backups/dir1/file1b bs=1M count=2
 dd if=/dev/urandom of=/backups/dir2/file2a bs=1M count=1
 dd if=/dev/urandom of=/backups/dir2/file2b bs=1M count=2
+chmod 400 /id_rsa
 
 # Prepare backup env
 export BACKUP_SOURCE=/backups
@@ -88,7 +89,6 @@ export SFTP_HOST=sftp
 export SFTP_USERNAME=sftpuser
 export SFTP_PRIVKEY=/id_rsa
 export SFTP_PATH=incoming
-chmod 400 /id_rsa
 assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
 assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
 /dosend.sh
