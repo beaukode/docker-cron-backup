@@ -1,0 +1,32 @@
+version: '2'
+services:
+  sut:
+    build: .
+    command: "/run_tests.sh"
+    depends_on:
+      - ftp
+      - sftp
+    volumes:
+      - "data:/home"
+      - "data:/data/incoming"
+      - "./tests/id_rsa:/id_rsa"
+  ftp:
+    image: stilliard/pure-ftpd:hardened
+    environment:
+      - "PUBLICHOST=ftp"
+      - "FTP_USER_NAME=testuser"
+      - "FTP_USER_PASS=testpasswd"
+      - "FTP_USER_HOME=/home/ftp"
+      - "ADDED_FLAGS=-S 0.0.0.0,29999"
+    volumes:
+      - "data:/home"
+  sftp:
+    image: writl/sftp
+    environment:
+      - "PUBKEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHH55vFqcotGQepAcfRXFPM8yycf6LeGAbCa592DmJXmEbfPov3S3Niy8acgZdWAWhmjAlcjIFh484D8UvusnoUWBEiQ05SgTE2pesrPbDoK9klRbr0pKT9Y56Wo07ibhU58BekxP5rk0XTANBYMWzX3TrokaAgGkrfJ10h9TMzFNpTwaSsVU8n6VA2hAlTuVhWcl0B9HvYz+sI6ECr/D/xPP7EQsmUj2vFy7c8CcF8qqRHEEld0PnFU7c2SIgH8RYmCcDXfRzoiiCG2bR1Oppsam+z2uUCvFf23ugDdg33sNV3sm9WBWHDo51JTlBWJEZf9wyem+VKGSkgwn0Adud"
+      - "USER=sftpuser"
+      - "PASS=testpasswd"
+    volumes:
+      - "data:/data/incoming"
+volumes:
+  data:

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 dosend_ftp ()
 {
@@ -10,7 +11,8 @@ dosend_ftp ()
         >&2 echo "FTP: Unable to send backups FTP_PASSWORD value is missing"
         return 1
     fi
-    ncftpput -m -u "${FTP_USERNAME}" -p "${FTP_PASSWORD}" -P ${FTP_PORT} "${FTP_HOST}" "${FTP_PATH}/${BACKUP_PREFIX}" ${BACKUP_TMP}/*.tar.gz
+    CMD="ncftpput -m -u ${FTP_USERNAME} -p ${FTP_PASSWORD} -P ${FTP_PORT} ${FTP_HOST} ${FTP_PATH}/${BACKUP_PREFIX} ${BACKUP_TMP}/*.tar.gz"
+    $CMD
 }
 
 dosend_sftp ()
@@ -41,12 +43,12 @@ dosend_sftp ()
 
     CMD="sftp -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o Port=${SFTP_PORT}"
     if [ -z "${SFTP_PRIVKEY}" ]; then
-        CMD="sshpass -p \"${SFTP_PASSWORD}\" $CMD"
+        CMD="sshpass -p ${SFTP_PASSWORD} $CMD"
     else
-        CMD="$CMD -i \"${SFTP_PRIVKEY}\""
+        CMD="$CMD -i ${SFTP_PRIVKEY}"
     fi
-    CMD="$CMD \"${SFTP_USERNAME}@${SFTP_HOST}\" < \"${SFTP_SCRIPT}\""
-    eval $CMD
+    CMD="$CMD ${SFTP_USERNAME}@${SFTP_HOST}"
+    $CMD < ${SFTP_SCRIPT}
     rm "${SFTP_SCRIPT}"
 }
 
