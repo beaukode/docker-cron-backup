@@ -71,15 +71,15 @@ echo ">Send to SFTP (password)"
 export SFTP_HOST=sftp
 export SFTP_USERNAME=sftpuser
 export SFTP_PASSWORD=testpasswd
-export SFTP_PATH=data
-assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
-assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+export SFTP_PATH=incoming
+assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
+assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
 /dosend.sh
-assertFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
-assertFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
-rm -Rf /home/sftpuser/data/*
-assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
-assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+assertFileExists "/data/incoming/testbackup/dir1.tar.gz"
+assertFileExists "/data/incoming/testbackup/dir2.tar.gz"
+rm -Rf /data/incoming/*
+assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
+assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
 unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD
 
 # Send to SFTP (key)
@@ -87,13 +87,14 @@ echo ">Send to SFTP (key)"
 export SFTP_HOST=sftp
 export SFTP_USERNAME=sftpuser
 export SFTP_PRIVKEY=/id_rsa
-export SFTP_PATH=data
-assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
-assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+export SFTP_PATH=incoming
+assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
+assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
 /dosend.sh
-assertFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
-assertFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
-rm -Rf /home/sftpuser/data/*
-assertNotFileExists "/home/sftpuser/data/testbackup/dir1.tar.gz"
-assertNotFileExists "/home/sftpuser/data/testbackup/dir2.tar.gz"
+assertFileExists "/data/incoming/testbackup/dir1.tar.gz"
+assertFileExists "/data/incoming/testbackup/dir2.tar.gz"
+rm -Rf /data/incoming/*
+assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
+assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
 unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD
+
