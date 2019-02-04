@@ -88,10 +88,9 @@ export SFTP_HOST=sftp
 export SFTP_USERNAME=sftpuser
 export SFTP_PRIVKEY=/id_rsa
 export SFTP_PATH=incoming
+chmod 400 /id_rsa
 assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
 assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
-cat /id_rsa
-ls -alh /id_rsa
 /dosend.sh
 assertFileExists "/data/incoming/testbackup/dir1.tar.gz"
 assertFileExists "/data/incoming/testbackup/dir2.tar.gz"
