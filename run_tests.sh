@@ -90,6 +90,8 @@ export SFTP_PRIVKEY=/id_rsa
 export SFTP_PATH=incoming
 assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
 assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
+cat /id_rsa
+ls -alh /id_rsa
 /dosend.sh
 assertFileExists "/data/incoming/testbackup/dir1.tar.gz"
 assertFileExists "/data/incoming/testbackup/dir2.tar.gz"
