@@ -1,8 +1,9 @@
 # Docker-cron-backup
-This docker image to plan file &amp; mysql backup ftp/sftp
+This docker image is a simple way to backup files and databases
 
 ## Usage
 Run image and mount everythings you want in /backups !
+You can use cron expression to plan backups or use external runner like crontab, kubernetes cronjobs, etc...
 
 ### Backup every home
 Mount /home to /backups then it will create a user.tar.gz for each users
@@ -51,4 +52,18 @@ docker run -d \
 * **SFTP_PATH** (Default: .) : Path on SFTP to put backup in
 * **SFTP_USERNAME** : SFTP account username
 * **SFTP_PASSWORD** : SFTP account password
-* **SFTP_PRIVKEY** : OpenSSH private key (unencrypted with passphrase !)
+* **SFTP_PRIVKEY** : Unencrypted OpenSSH private key (without passphrase !)
+
+# Contributions
+You are welcome to contribute code and docs
+Please write tests and open pull request to integrate your work
+Spellchecking and more examples to this readme would be nice, english is not my primary language
+
+# Issues
+Please report issues at GitHub https://github.com/beaukode/docker-cron-backup/issues
+
+# Todo
+* Database backups : mysql & mongodb
+* Openstack swift target
+* Amazon : S3, Glacier
+* Google cloud storage
