@@ -22,6 +22,7 @@ assertNotFileExists ()
 
 assertSwiftFileExists ()
 {
+    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin --os-region-name "RegionOne" stat test_backups $1
     if [ $? -eq 0 ]; then
         echo "PASS: Existing swift file $1"
     else
@@ -32,7 +33,7 @@ assertSwiftFileExists ()
 
 assertSwiftNotFileExists ()
 {
-    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin stat test_backups $1
+    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin --os-region-name "RegionOne" stat test_backups $1
     if [ $? -eq 0 ]; then
         echo "FAIL: Existing swift file $1"
         exit 1;
@@ -136,5 +137,5 @@ assertSwiftNotFileExists "testbackup/dir2.tar.gz"
 /dosend.sh
 assertSwiftFileExists "testbackup/dir1.tar.gz"
 assertSwiftFileExists "testbackup/dir2.tar.gz"
-swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin delete $OS_CONTAINER # delete container
+swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin --os-region-name "RegionOne" delete $OS_CONTAINER # delete container
 unset OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_PROJECT_NAME OS_CONTAINER
