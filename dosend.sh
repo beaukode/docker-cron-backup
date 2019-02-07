@@ -1,6 +1,4 @@
 #!/bin/bash
-set -x
-
 dosend_ftp ()
 {
     if [ -z "${FTP_USERNAME}" ]; then
@@ -52,6 +50,22 @@ dosend_sftp ()
     rm "${SFTP_SCRIPT}"
 }
 
+dosend_swift () {
+    if [ -z "${OS_USERNAME}" ] || [ -z "${OS_PASSWORD}" ] || [ -z "${OS_PROJECT_NAME}" ]; then
+        >&2 echo "OS: Unable to send backups, you must set OS_USERNAME, OS_PASSWORD and OS_PROJECT_NAME"
+        return 1
+    fi
+    for D in $BACKUP_TMP/*; do
+        BASENAME=`basename $D`
+        OBJNAME="${BACKUP_PREFIX}/$BASENAME"
+        if [ ! -z "${OS_PATH}" ]; then
+            OBJNAME="$OS_PATH/$OBJNAME"
+        fi
+        swift -A "$OS_AUTH_URL" --os-username "$OS_USERNAME" --os-password "$OS_PASSWORD" \
+            --os-project-name "$OS_PROJECT_NAME" upload --object-name "$OBJNAME" "$OS_CONTAINER" $D
+    done
+}
+
 if [ ! -z "${FTP_HOST}" ]; then
     if [ -z "${FTP_PORT}" ]; then
         FTP_PORT=21
@@ -74,4 +88,16 @@ if [ ! -z "${SFTP_HOST}" ]; then
         SFTP_PATH=${SFTP_PATH%/}
     fi
     dosend_sftp
+fi
+
+if [ ! -z "${OS_AUTH_URL}" ]; then
+    if [ -z "${OS_CONTAINER}" ]; then
+        OS_CONTAINER=backups
+    fi
+    if [ -z "${OS_PATH}" ]; then
+        OS_PATH=""
+    else
+        OS_PATH=${OS_PATH%/}
+    fi
+    dosend_swift
 fi

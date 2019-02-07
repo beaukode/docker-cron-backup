@@ -20,6 +20,28 @@ assertNotFileExists ()
     fi
 }
 
+assertSwiftFileExists ()
+{
+    if [ $? -eq 0 ]; then
+        echo "PASS: Existing swift file $1"
+    else
+        echo "FAIL: Missing swift file $1"
+        exit 1;
+    fi
+}
+
+assertSwiftNotFileExists ()
+{
+    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin stat test_backups $1
+    if [ $? -eq 0 ]; then
+        echo "FAIL: Existing swift file $1"
+        exit 1;
+    else
+        echo "PASS: Not existing swift file $1"
+    fi
+}
+
+
 # Create some stuff to backup
 echo "Preparing test files... "
 mkdir /backups/dir1
@@ -37,6 +59,9 @@ export BACKUP_TMP="/tmp/$BACKUP_PREFIX"
 rm -Rf /home/ftp/*
 rm -Rf $BACKUP_TMP
 mkdir $BACKUP_TMP
+
+# Wait services
+dockerize -wait tcp://ftp:29999 -wait tcp://sftp:22 -wait tcp://swift:5001 -timeout 60s
 
 # Create archives
 echo ">Create archives"
@@ -99,3 +124,17 @@ assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
 assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
 unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD
 
+# Send to OpenStack Swift
+echo ">Send to OpenStack Swift"
+export OS_AUTH_URL=http://swift:5000/v2.0/
+export OS_USERNAME=admin
+export OS_PASSWORD=s3cr3t
+export OS_PROJECT_NAME=admin
+export OS_CONTAINER=test_backups
+assertSwiftNotFileExists "testbackup/dir1.tar.gz"
+assertSwiftNotFileExists "testbackup/dir2.tar.gz"
+/dosend.sh
+assertSwiftFileExists "testbackup/dir1.tar.gz"
+assertSwiftFileExists "testbackup/dir2.tar.gz"
+swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin delete $OS_CONTAINER # delete container
+unset OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_PROJECT_NAME OS_CONTAINER

@@ -6,6 +6,7 @@ services:
     depends_on:
       - ftp
       - sftp
+      - swift
     volumes:
       - "data:/home"
       - "data:/data/incoming"
@@ -28,5 +29,9 @@ services:
       - "PASS=testpasswd"
     volumes:
       - "data:/data/incoming"
+  swift:
+    image: beaukode/docker-swift-onlyone-authv2-keystone
+    environment: 
+      - "PUBLIC_HOST=swift"
 volumes:
   data:
