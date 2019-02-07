@@ -108,7 +108,7 @@ rm -Rf $BACKUP_TMP
 mkdir $BACKUP_TMP
 
 # Wait services
-dockerize -wait tcp://ftp:29999 -wait tcp://sftp:22 -wait tcp://swift:5001 -timeout 60s
+dockerize -wait tcp://ftp:29999 -wait tcp://sftp:22 -wait tcp://swift:5001 -timeout 180s
 
 # Create archives
 echo ">Create archives"
