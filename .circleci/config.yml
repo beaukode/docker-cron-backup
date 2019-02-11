@@ -40,7 +40,7 @@ jobs:
       - run:
           name: Save Docker image layer cache
           command: |
-            if [ -n "$CIRCLE_PROJECT_REPONAME" ]; then docker save -o /tmp/app.tar app apptest; fi
+            if [ -n "$CIRCLE_PROJECT_REPONAME" ]; then docker save -o /tmp/app.tar app apptest stilliard/pure-ftpd writl/sftp beaukode/docker-swift-onlyone-authv2-keystone circleci/mysql; fi
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
