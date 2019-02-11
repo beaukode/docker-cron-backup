@@ -27,6 +27,8 @@ jobs:
               -e "USER=sftpuser" -e "PASS=testpasswd" writl/sftp
             docker run --network appnet --rm -d --name swift \
               -e "PUBLIC_HOST=swift" beaukode/docker-swift-onlyone-authv2-keystone
+            docker run --network appnet --rm -d --name mysql -e "MYSQL_ROOT_PASSWORD=s3cr3t" -e "MYSQL_DATABASE=testdb" \
+              -e "MYSQL_USER=testuser" -e "MYSQL_PASSWORD=s3cr3t" circleci/mysql:5.7
       - run:
           name: Build application Docker image
           command: |
@@ -38,7 +40,7 @@ jobs:
       - run:
           name: Save Docker image layer cache
           command: |
-            if [ -n "$CIRCLE_PROJECT_REPONAME" ]; then docker save -o /tmp/app.tar app apptest writl/sftp stilliard/pure-ftpd beaukode/docker-swift-onlyone-authv2-keystone; fi
+            if [ -n "$CIRCLE_PROJECT_REPONAME" ]; then docker save -o /tmp/app.tar app apptest; fi
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
@@ -46,7 +48,7 @@ jobs:
       - run:
           name: Wait services before tests
           command: |
-            docker run --network appnet jwilder/dockerize dockerize -wait tcp://ftp:29999 -wait tcp://sftp:22 -wait tcp://swift:5001 -timeout 180s
+            docker run --network appnet jwilder/dockerize dockerize -wait tcp://ftp:29999 -wait tcp://sftp:22 -wait tcp://mysql:3306 -wait tcp://swift:5001 -timeout 180s
       - run:
           name: Run tests
           command: |
@@ -54,7 +56,7 @@ jobs:
       - run:
           name: Stop services
           command: |
-            docker stop ftp sftp swift
+            docker stop ftp sftp mysql swift
       - run:
           name: Push to registry
           command: |

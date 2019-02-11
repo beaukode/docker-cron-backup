@@ -102,6 +102,8 @@ dd if=/dev/urandom of=/backups/dir1/file1a bs=1M count=1
 dd if=/dev/urandom of=/backups/dir1/file1b bs=1M count=2
 dd if=/dev/urandom of=/backups/dir2/file2a bs=1M count=1
 dd if=/dev/urandom of=/backups/dir2/file2b bs=1M count=2
+echo "Preparing databases... "
+mysql -h mysql -u testuser -ps3cr3t testdb < /randomdata.sql
 
 # Prepare backup env
 export BACKUP_SOURCE=/backups
@@ -110,13 +112,20 @@ export BACKUP_TMP="/tmp/$BACKUP_PREFIX"
 rm -Rf $BACKUP_TMP
 mkdir $BACKUP_TMP
 
+# Dump databases
+assertNotFileExists "${BACKUP_SOURCE}/db-mysql/testdb.sql"
+/dodump.sh
+assertFileExists "${BACKUP_SOURCE}/db-mysql/testdb.sql"
+
 # Create archives
 echo ">Create archives"
 assertNotFileExists "${BACKUP_TMP}/dir1.tar.gz"
 assertNotFileExists "${BACKUP_TMP}/dir2.tar.gz"
+assertNotFileExists "${BACKUP_TMP}/db-mysql.tar.gz"
 /docompress.sh
 assertFileExists "${BACKUP_TMP}/dir1.tar.gz"
 assertFileExists "${BACKUP_TMP}/dir2.tar.gz"
+assertFileExists "${BACKUP_TMP}/db-mysql.tar.gz"
 
 # Do nothing
 echo ">Do nothing"
