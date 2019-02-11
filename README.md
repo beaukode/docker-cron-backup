@@ -39,6 +39,12 @@ docker run -d \
 * **BACKUP_CRON** : Cron expression to plan backups, leave empty to run once then exit
 * **BACKUP_SOURCE** (Default: /backups) : Directory to backup. **ONLY** each subdirectory will be saved as tar.gz archives. *Files and dots directories on this root directory is ignored*
 
+## MySQL / MariaDB
+* **MYSQL_HOST** : Database server host
+* **MYSQL_PORT** (Default: 3306) : Database server port
+* **MYSQL_USERNAME** : Database account username
+* **MYSQL_PASSWORD** : Database account password
+
 ## FTP
 * **FTP_HOST** : Send archives to this FTP host in a directory named FTP_PATH/DATE_TIME/
 * **FTP_PORT** (Default: 21) : FTP server port
@@ -73,7 +79,7 @@ Spellchecking and more examples to this readme would be nice, english is not my 
 Please report issues at GitHub https://github.com/beaukode/docker-cron-backup/issues
 
 # Todo
-* Database backups : mysql & mongodb
+* Database backups : mongodb
 * Openstack swift target
 * Amazon : S3, Glacier
 * Google cloud storage
