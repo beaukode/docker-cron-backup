@@ -1,0 +1,76 @@
+version: 2
+jobs:
+  build:
+    working_directory: /app
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v1-{{ .Branch }}
+          paths:
+            - /tmp/app.tar
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i /tmp/app.tar || true
+      - run:
+          name: Start services
+          command: |
+            docker network create appnet || true
+            docker run --network appnet --rm -d --name ftp -e "PUBLICHOST=ftp" -e "FTP_USER_NAME=testuser" -e "FTP_USER_PASS=testpasswd" \
+              -e "FTP_USER_HOME=/home/ftp" -e "ADDED_FLAGS=-S 0.0.0.0,29999" stilliard/pure-ftpd:hardened
+            docker run --network appnet --rm -d --name sftp -e "PUBKEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHH55vFqcotGQepAcfRXFPM8yycf6LeGAbCa592DmJXmEbfPov3S3Niy8acgZdWAWhmjAlcjIFh484D8UvusnoUWBEiQ05SgTE2pesrPbDoK9klRbr0pKT9Y56Wo07ibhU58BekxP5rk0XTANBYMWzX3TrokaAgGkrfJ10h9TMzFNpTwaSsVU8n6VA2hAlTuVhWcl0B9HvYz+sI6ECr/D/xPP7EQsmUj2vFy7c8CcF8qqRHEEld0PnFU7c2SIgH8RYmCcDXfRzoiiCG2bR1Oppsam+z2uUCvFf23ugDdg33sNV3sm9WBWHDo51JTlBWJEZf9wyem+VKGSkgwn0Adud" \
+              -e "USER=sftpuser" -e "PASS=testpasswd" writl/sftp
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build --cache-from=app -t app .
+      - run:
+          name: Build test Docker image
+          command: |
+            docker build --cache-from=app -t apptest -f Dockerfile.test .
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            if [ -n "$CIRCLE_PROJECT_REPONAME" ]; then docker save -o /tmp/app.tar $CIRCLE_PROJECT_REPONAME; fi
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ epoch }}
+          paths:
+            - /tmp/app.tar
+      - run:
+          name: Wait services before tests
+          command: |
+            docker run --network appnet jwilder/dockerize dockerize -wait tcp://ftp:29999 -wait tcp://sftp:22 -timeout 180s
+      - run:
+          name: Run tests
+          command: |
+            docker run --network appnet --rm --name apptest apptest ./run_tests.sh
+      - run:
+          name: Stop services
+          command: |
+            docker stop ftp sftp
+      - run:
+          name: Push to registry
+          command: |
+            if [ -z "$CIRCLE_PROJECT_REPONAME" ]; then exit 0; fi # Disable push for local builds
+            export IMAGE_NAME=$REGISTRY_USERNAME/cron-backup
+            docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
+            if [ "${CIRCLE_TAG}" != "" ]; then
+              docker tag app $IMAGE_NAME:$CIRCLE_TAG
+              docker tag app $IMAGE_NAME:latest
+              docker push $IMAGE_NAME:$CIRCLE_TAG
+              docker push $IMAGE_NAME:latest
+            else
+              docker tag app $IMAGE_NAME:$CIRCLE_BRANCH
+              docker push $IMAGE_NAME:$CIRCLE_BRANCH
+            fi
+workflows:
+  version: 2
+  build-and-push:
+    jobs:
+      - build:
+          context: hub-registry

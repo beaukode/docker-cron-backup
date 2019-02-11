@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 assertFileExists ()
 {
@@ -20,6 +21,54 @@ assertNotFileExists ()
     fi
 }
 
+assertFtpFileExists ()
+{
+    ret=0
+    ncftpget -c -u ${FTP_USERNAME} -p ${FTP_PASSWORD} -P ${FTP_PORT} ${FTP_HOST} $1 > /dev/null || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo "PASS: Existing ftp file $1"
+    else
+        echo "FAIL: Missing ftp file $1"
+        exit 1;
+    fi
+}
+
+assertFtpNotFileExists ()
+{
+    ret=0
+    ncftpget -c -u ${FTP_USERNAME} -p ${FTP_PASSWORD} -P ${FTP_PORT} ${FTP_HOST} $1 > /dev/null || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo "FAIL: Existing ftp file $1"
+        exit 1;
+    else
+        echo "PASS: Not existing ftp file $1"
+    fi
+}
+
+assertSftpFileExists ()
+{
+    ret=0
+    sftp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /id_rsa ${SFTP_USERNAME}@${SFTP_HOST}:$1 || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo "PASS: Existing sftp file $1"
+    else
+        echo "FAIL: Missing sftp file $1"
+        exit 1;
+    fi
+}
+
+assertSftpNotFileExists ()
+{
+    ret=0
+    sftp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /id_rsa ${SFTP_USERNAME}@${SFTP_HOST}:$1 || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo "FAIL: Existing sftp file $1"
+        exit 1;
+    else
+        echo "PASS: Not existing sftp file $1"
+    fi
+}
+
 # Create some stuff to backup
 echo "Preparing test files... "
 mkdir /backups/dir1
@@ -28,13 +77,11 @@ dd if=/dev/urandom of=/backups/dir1/file1a bs=1M count=1
 dd if=/dev/urandom of=/backups/dir1/file1b bs=1M count=2
 dd if=/dev/urandom of=/backups/dir2/file2a bs=1M count=1
 dd if=/dev/urandom of=/backups/dir2/file2b bs=1M count=2
-chmod 400 /id_rsa
 
 # Prepare backup env
 export BACKUP_SOURCE=/backups
 export BACKUP_PREFIX=testbackup
 export BACKUP_TMP="/tmp/$BACKUP_PREFIX"
-rm -Rf /home/ftp/*
 rm -Rf $BACKUP_TMP
 mkdir $BACKUP_TMP
 
@@ -57,14 +104,11 @@ export FTP_PORT=29999
 export FTP_PATH=data
 export FTP_USERNAME=testuser
 export FTP_PASSWORD=testpasswd
-assertNotFileExists "/home/ftp/data/testbackup/dir1.tar.gz"
-assertNotFileExists "/home/ftp/data/testbackup/dir2.tar.gz"
+assertFtpNotFileExists "data/testbackup/dir1.tar.gz"
+assertFtpNotFileExists "data/testbackup/dir2.tar.gz"
 /dosend.sh
-assertFileExists "/home/ftp/data/testbackup/dir1.tar.gz"
-assertFileExists "/home/ftp/data/testbackup/dir2.tar.gz"
-rm -Rf /home/ftp/*
-assertNotFileExists "/home/ftp/data/testbackup/dir1.tar.gz"
-assertNotFileExists "/home/ftp/data/testbackup/dir2.tar.gz"
+assertFtpFileExists "data/testbackup/dir1.tar.gz"
+assertFtpFileExists "data/testbackup/dir2.tar.gz"
 unset FTP_HOST FTP_PORT FTP_PATH FTP_USERNAME FTP_PASSWORD
 
 # Send to SFTP (password)
@@ -73,14 +117,16 @@ export SFTP_HOST=sftp
 export SFTP_USERNAME=sftpuser
 export SFTP_PASSWORD=testpasswd
 export SFTP_PATH=incoming
-assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
-assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
+assertSftpNotFileExists "incoming/testbackup/dir1.tar.gz"
+assertSftpNotFileExists "incoming/testbackup/dir2.tar.gz"
 /dosend.sh
-assertFileExists "/data/incoming/testbackup/dir1.tar.gz"
-assertFileExists "/data/incoming/testbackup/dir2.tar.gz"
-rm -Rf /data/incoming/*
-assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
-assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
+assertSftpFileExists "incoming/testbackup/dir1.tar.gz"
+assertSftpFileExists "incoming/testbackup/dir2.tar.gz"
+sftp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /id_rsa $SFTP_USERNAME@$SFTP_HOST <<EOF
+rm incoming/testbackup/*
+rmdir incoming/testbackup
+exit
+EOF
 unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD
 
 # Send to SFTP (key)
@@ -89,13 +135,15 @@ export SFTP_HOST=sftp
 export SFTP_USERNAME=sftpuser
 export SFTP_PRIVKEY=/id_rsa
 export SFTP_PATH=incoming
-assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
-assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
+assertSftpNotFileExists "incoming/testbackup/dir1.tar.gz"
+assertSftpNotFileExists "incoming/testbackup/dir2.tar.gz"
 /dosend.sh
-assertFileExists "/data/incoming/testbackup/dir1.tar.gz"
-assertFileExists "/data/incoming/testbackup/dir2.tar.gz"
-rm -Rf /data/incoming/*
-assertNotFileExists "/data/incoming/testbackup/dir1.tar.gz"
-assertNotFileExists "/data/incoming/testbackup/dir2.tar.gz"
+assertSftpFileExists "incoming/testbackup/dir1.tar.gz"
+assertSftpFileExists "incoming/testbackup/dir2.tar.gz"
+sftp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /id_rsa $SFTP_USERNAME@$SFTP_HOST <<EOF
+rm incoming/testbackup/*
+rmdir incoming/testbackup
+exit
+EOF
 unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD
 
