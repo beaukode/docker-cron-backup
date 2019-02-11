@@ -36,7 +36,7 @@ jobs:
       - run:
           name: Save Docker image layer cache
           command: |
-            if [ -n "$CIRCLE_PROJECT_REPONAME" ]; then docker save -o /tmp/app.tar; fi
+            if [ -n "$CIRCLE_PROJECT_REPONAME" ]; then docker save -o /tmp/app.tar app apptest writl/sftp stilliard/pure-ftpd; fi
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
