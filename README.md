@@ -54,6 +54,16 @@ docker run -d \
 * **SFTP_PASSWORD** : SFTP account password
 * **SFTP_PRIVKEY** : Unencrypted OpenSSH private key (without passphrase !)
 
+## Openstack Swift
+* **OS_AUTH_URL** : Openstack auth URL (Auth version 2)
+* **OS_USERNAME** : Openstack account username
+* **OS_PASSWORD** : Openstack account password
+* **OS_PROJECT_NAME** : Openstack project or tenant name
+* **OS_REGION_NAME** : Openstack region name
+* **OS_DELETE_AFTER** : Openstack will delete file after X seconds (Leave blank to keep file forever)
+* **OS_CONTAINER** (Default: backups) : Openstack target container
+* **OS_PATH** (Default: /) : Openstack path for backups inside container
+
 # Contributions
 You are welcome to contribute code and docs
 Please write tests and open pull request to integrate your work
