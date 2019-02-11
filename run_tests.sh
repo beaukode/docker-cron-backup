@@ -113,6 +113,10 @@ rm -Rf $BACKUP_TMP
 mkdir $BACKUP_TMP
 
 # Dump databases
+echo ">Dump MySQL databases"
+export MYSQL_HOST=mysql
+export MYSQL_USERNAME=root
+export MYSQL_PASSWORD=s3cr3t
 assertNotFileExists "${BACKUP_SOURCE}/db-mysql/testdb.sql"
 /dodump.sh
 assertFileExists "${BACKUP_SOURCE}/db-mysql/testdb.sql"
