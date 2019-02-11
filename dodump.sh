@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 if [ -n "${MYSQL_USERNAME}" ]; then
     backupdir="$BACKUP_SOURCE/db-mysql"
