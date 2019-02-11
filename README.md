@@ -59,6 +59,7 @@ docker run -d \
 * **OS_USERNAME** : Openstack account username
 * **OS_PASSWORD** : Openstack account password
 * **OS_PROJECT_NAME** : Openstack project or tenant name
+* **OS_REGION_NAME** : Openstack region name
 * **OS_CONTAINER** (Default: backups) : Openstack target container
 * **OS_PATH** (Default: /) : Openstack path for backups inside container
 

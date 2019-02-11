@@ -64,7 +64,7 @@ dosend_swift () {
             OBJNAME="$OS_PATH/$OBJNAME"
         fi
         swift -A "$OS_AUTH_URL" --os-username "$OS_USERNAME" --os-password "$OS_PASSWORD" \
-            --os-project-name "$OS_PROJECT_NAME" upload --object-name "$OBJNAME" "$OS_CONTAINER" $D
+            --os-project-name "$OS_PROJECT_NAME" --os-region-name "$OS_REGION_NAME" upload --object-name "$OBJNAME" "$OS_CONTAINER" $D
     done
 }
 
