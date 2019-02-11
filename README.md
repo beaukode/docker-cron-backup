@@ -60,6 +60,7 @@ docker run -d \
 * **OS_PASSWORD** : Openstack account password
 * **OS_PROJECT_NAME** : Openstack project or tenant name
 * **OS_REGION_NAME** : Openstack region name
+* **OS_DELETE_AFTER** : Openstack will delete file after X seconds (Leave blank to keep file forever)
 * **OS_CONTAINER** (Default: backups) : Openstack target container
 * **OS_PATH** (Default: /) : Openstack path for backups inside container
 
