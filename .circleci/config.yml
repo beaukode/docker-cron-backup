@@ -67,8 +67,8 @@ jobs:
               docker push $IMAGE_NAME:$CIRCLE_TAG
               docker push $IMAGE_NAME:latest
             else
-              docker tag app $IMAGE_NAME:$CIRCLE_BRANCH
-              docker push $IMAGE_NAME:$CIRCLE_BRANCH
+              docker tag app $IMAGE_NAME:${CIRCLE_BRANCH#"features/"}
+              docker push $IMAGE_NAME:${CIRCLE_BRANCH#"features/"}
             fi
 workflows:
   version: 2
