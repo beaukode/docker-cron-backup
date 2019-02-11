@@ -8,11 +8,6 @@ RUN set -ex \
     && pip install python-swiftclient python-keystoneclient \
     && apk del --no-cache python-dev gcc linux-headers libc-dev
 
-ENV DOCKERIZE_VERSION v0.6.1
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
 COPY start.sh dobackup.sh docompress.sh dosend.sh /
 
 RUN set -x \
