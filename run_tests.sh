@@ -71,8 +71,9 @@ assertSftpNotFileExists ()
 
 assertSwiftFileExists ()
 {
-    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin --os-region-name "RegionOne" stat test_backups $1
-    if [ $? -eq 0 ]; then
+    ret=0
+    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin --os-region-name "RegionOne" stat test_backups $1 || ret=$?
+    if [ $ret -eq 0 ]; then
         echo "PASS: Existing swift file $1"
     else
         echo "FAIL: Missing swift file $1"
@@ -82,8 +83,9 @@ assertSwiftFileExists ()
 
 assertSwiftNotFileExists ()
 {
-    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin --os-region-name "RegionOne" stat test_backups $1
-    if [ $? -eq 0 ]; then
+    ret=0
+    swift -A http://swift:5000/v2.0/ --os-username admin --os-password s3cr3t --os-project-name admin --os-region-name "RegionOne" stat test_backups $1 || ret=$?
+    if [ $ret -eq 0 ]; then
         echo "FAIL: Existing swift file $1"
         exit 1;
     else
