@@ -8,7 +8,7 @@ RUN set -ex \
     && pip install python-swiftclient python-keystoneclient \
     && apk del --no-cache python-dev gcc linux-headers libc-dev
 
-COPY start.sh dobackup.sh docompress.sh dosend.sh dodump.sh /
+COPY start.sh dobackup.sh docompress.sh dosend.sh dodump.sh exportenv.sh /
 
 RUN set -x \
     && chmod +x /*.sh \

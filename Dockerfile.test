@@ -1,7 +1,7 @@
 FROM app
 LABEL maintainer "Jérémie COLOMBO <jeremie.colombo@gmail.com>"
 
-COPY run_tests.sh tests/id_rsa tests/randomdata.sql /
+COPY run_tests.sh tests/id_rsa tests/* /
 
 RUN set -x \
     && chmod +x /run_tests.sh \

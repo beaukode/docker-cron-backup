@@ -21,6 +21,19 @@ assertNotFileExists ()
     fi
 }
 
+assertFileEqual ()
+{
+    ret=0
+    diff "$1" "$2" > /dev/null || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo "PASS: Files $1 $2 are equals"
+    else
+        diff "$1" "$2"
+        echo "FAIL: Files $1 $2 are not equals"
+        exit 1;
+    fi
+}
+
 assertFtpFileExists ()
 {
     ret=0
@@ -93,6 +106,39 @@ assertSwiftNotFileExists ()
     fi
 }
 
+# Export env vars for backup script
+echo ">Export env vars for backup script"
+export BACKUP_SOURCE=A
+export MYSQL_HOST=B
+export MYSQL_PORT=C
+export MYSQL_USERNAME=D
+export MYSQL_PASSWORD=E
+export FTP_HOST=F
+export FTP_PORT=G
+export FTP_PATH=H
+export FTP_USERNAME=I
+export FTP_PASSWORD=J
+export SFTP_HOST=K
+export SFTP_PORT=L
+export SFTP_PATH=M
+export SFTP_USERNAME=N
+export SFTP_PASSWORD=O
+export SFTP_PRIVKEY=P
+export OS_AUTH_URL=Q
+export OS_USERNAME=R
+export OS_PASSWORD=S
+export OS_PROJECT_NAME=T
+export OS_REGION_NAME=U
+export OS_DELETE_AFTER=V
+export OS_CONTAINER=W
+export OS_PATH=X
+./exportenv.sh
+assertFileEqual "env.sh" "env.sh.snapshot"
+unset BACKUP_SOURCE
+unset MYSQL_HOST MYSQL_PORT MYSQL_USERNAME MYSQL_PASSWORD
+unset FTP_HOST FTP_PORT FTP_USERNAME FTP_PATH FTP_PASSWORD
+unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD SFTP_PRIVKEY
+unset OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_PROJECT_NAME OS_REGION_NAME OS_DELETE_AFTER OS_CONTAINER OS_PATH
 
 # Create some stuff to backup
 echo "Preparing test files... "
