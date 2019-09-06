@@ -7,6 +7,7 @@ export BACKUP_TMP="/tmp/$BACKUP_PREFIX"
 echo "[`date`] Starting backup"
 echo "[`date`] Création temp directory : $BACKUP_TMP"
 mkdir $BACKUP_TMP
+/dodump.sh
 /docompress.sh
 /dosend.sh
 rm -Rf $BACKUP_TMP
