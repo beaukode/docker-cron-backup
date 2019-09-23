@@ -78,3 +78,6 @@ workflows:
     jobs:
       - build:
           context: hub-registry
+          filters:
+            tags:
+              only: /.*/
