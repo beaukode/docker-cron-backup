@@ -61,7 +61,8 @@ docker run -d \
 * **SFTP_PRIVKEY** : Unencrypted OpenSSH private key (without passphrase !)
 
 ## Openstack Swift
-* **OS_AUTH_URL** : Openstack auth URL (Auth version 2)
+* **OS_AUTH_URL** : Openstack auth URL
+* **OS_AUTH_VERSION** : (Default: 2) Openstack auth version
 * **OS_USERNAME** : Openstack account username
 * **OS_PASSWORD** : Openstack account password
 * **OS_PROJECT_NAME** : Openstack project or tenant name

@@ -106,6 +106,30 @@ assertSwiftNotFileExists ()
     fi
 }
 
+assertSwiftFileExists3 ()
+{
+    ret=0
+    swift -A http://swift:5000/ --os-username $OS_USERNAME --os-password $OS_PASSWORD --os-project-name $OS_PROJECT_NAME --auth-version 3 --os-region-name "$OS_REGION_NAME" stat test_backups $1 || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo "PASS: Existing swift file $1"
+    else
+        echo "FAIL: Missing swift file $1"
+        exit 1;
+    fi
+}
+
+assertSwiftNotFileExists3 ()
+{
+    ret=0
+    swift -A http://swift:5000/ --os-username $OS_USERNAME --os-password $OS_PASSWORD --os-project-name $OS_PROJECT_NAME --auth-version 3 --os-region-name "$OS_REGION_NAME" stat test_backups $1 || ret=$?
+    if [ $ret -eq 0 ]; then
+        echo "FAIL: Existing swift file $1"
+        exit 1;
+    else
+        echo "PASS: Not existing swift file $1"
+    fi
+}
+
 # Export env vars for backup script
 echo ">Export env vars for backup script"
 export BACKUP_SOURCE=A
@@ -125,6 +149,7 @@ export SFTP_USERNAME=N
 export SFTP_PASSWORD=O
 export SFTP_PRIVKEY=P
 export OS_AUTH_URL=Q
+export OS_AUTH_VERSION=Q2
 export OS_USERNAME=R
 export OS_PASSWORD=S
 export OS_PROJECT_NAME=T
@@ -138,7 +163,7 @@ unset BACKUP_SOURCE
 unset MYSQL_HOST MYSQL_PORT MYSQL_USERNAME MYSQL_PASSWORD
 unset FTP_HOST FTP_PORT FTP_USERNAME FTP_PATH FTP_PASSWORD
 unset SFTP_HOST SFTP_PORT SFTP_PATH SFTP_USERNAME SFTP_PASSWORD SFTP_PRIVKEY
-unset OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_PROJECT_NAME OS_REGION_NAME OS_DELETE_AFTER OS_CONTAINER OS_PATH
+unset OS_AUTH_URL OS_AUTH_VERSION OS_USERNAME OS_PASSWORD OS_PROJECT_NAME OS_REGION_NAME OS_DELETE_AFTER OS_CONTAINER OS_PATH
 
 # Create some stuff to backup
 echo "Preparing test files... "
@@ -267,3 +292,19 @@ assertSwiftNotFileExists "testbackup/dir1.tar.gz"
 assertSwiftNotFileExists "testbackup/dir2.tar.gz"
 swift -A http://swift:5000/v2.0/ --os-username $OS_USERNAME --os-password $OS_PASSWORD --os-project-name $OS_PROJECT_NAME --os-region-name "$OS_REGION_NAME" delete $OS_CONTAINER || true # delete container
 unset OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_REGION_NAME OS_DELETE_AFTER OS_PROJECT_NAME OS_CONTAINER
+
+# Send to OpenStack Swift auth v3
+export OS_AUTH_URL=http://swift:5000/
+export OS_AUTH_VERSION=3
+export OS_USERNAME=admin
+export OS_PASSWORD=s3cr3t
+export OS_PROJECT_NAME=admin
+export OS_REGION_NAME=RegionOne
+export OS_CONTAINER=test_backups
+assertSwiftNotFileExists3 "testbackup/dir1.tar.gz"
+assertSwiftNotFileExists3 "testbackup/dir2.tar.gz"
+/dosend.sh
+assertSwiftFileExists3 "testbackup/dir1.tar.gz"
+assertSwiftFileExists3 "testbackup/dir2.tar.gz"
+swift -A http://swift:5000/ --os-username $OS_USERNAME --os-password $OS_PASSWORD --os-project-name $OS_PROJECT_NAME --auth-version 3 --os-region-name "$OS_REGION_NAME" delete $OS_CONTAINER # delete container
+unset OS_AUTH_URL OS_AUTH_VERSION OS_USERNAME OS_PASSWORD OS_REGION_NAME OS_PROJECT_NAME OS_CONTAINER

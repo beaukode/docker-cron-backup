@@ -63,12 +63,17 @@ dosend_swift () {
         if [ ! -z "${OS_PATH}" ]; then
             OBJNAME="$OS_PATH/$OBJNAME"
         fi
+
+        if [ -z "$OS_AUTH_VERSION" ]; then
+            OS_AUTH_VERSION="2"
+        fi
+
         EXTRA_ARGS=""
         if [ -n "$OS_DELETE_AFTER" ]; then
             EXTRA_ARGS="$EXTRA_ARGS -H X-Delete-After:$OS_DELETE_AFTER"
         fi
 
-        swift -A "$OS_AUTH_URL" --os-username "$OS_USERNAME" --os-password "$OS_PASSWORD" \
+        swift -A "$OS_AUTH_URL" --os-username "$OS_USERNAME" --os-password "$OS_PASSWORD" --auth-version $OS_AUTH_VERSION \
             --os-project-name "$OS_PROJECT_NAME" --os-region-name "$OS_REGION_NAME" upload $EXTRA_ARGS --object-name "$OBJNAME" "$OS_CONTAINER" $D
     done
 }
